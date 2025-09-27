@@ -14,9 +14,9 @@ printOut("--- Part 2 -----------------------------------------------------------
 // 25m 34cm = 2534cm = 25340mm
 // 1 inch = 25.4mm
 // inches = mm / 25.4
-let mm = (25*1000) + (34*100);
+let mm = (25*1000) + (34*10);
 let inches = mm / 25.4;
-printOut("inches: " + inches.toFixed(2));
+printOut("25 meters and 34 centimeters is: " + inches.toFixed(2));
 printOut(newLine);
 
 printOut("--- Part 3 ----------------------------------------------------------------------------------------------");
