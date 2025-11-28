@@ -12,31 +12,37 @@
     <ol>
       <li>Where should you use constants, and where should you use variables? Can they all be constants?</li>
       <p>
-				[Replace this with you answer]
+				Use constants for values that never change in your program.
+        Use variables for values that can change while the program is running.
+        Not all values can be constants, because some values need to be changable when the program runs. 
 			</p>
       <li>How do parentheses affect the arithmetic outcome of an expression?</li>
       <p>
-				[Replace this with you answer]
+				Parenthesis tell the program which part to calculate first.
+        This can change the result, because it changes the order of the math.
 			</p>
       <li>How do we limit floating-point numbers to a given number of decimals?</li>
       <p>
-				[Replace this with you answer]
+				We can round or format the number by using commands like toFixed(n) where n is the number of decimals we want.
 			</p>
       <li>How can we compare two floating-point values to see if they are equal (is 12.199999 the same as 12.2)?</li>
       <p>
-				[Replace this with you answer]
+				Floating-point numbers are not always exact, so we check if the difference between them is very small by using the command Math.abs(a - b) < epsilon.
 			</p>
       <li>What do comparison operators return, and how can we check if they are FALSE or TRUE?</li>
       <p>
-				[Replace this with you answer]
+				They return true or false. 
+        We can check the result by printing or using it in an "if" statement.
 			</p>
       <li>How does the Math.random() function work, and what can it be used for?</li>
       <p>
-				[Replace this with you answer]
+        Math.random() gives a random number betweeen two defined values. 
+        We use it when we need something random, like picking a random number, making a simple game, or choosing a random item. 
 			</p>
       <li>What is modulus (%), and when do we need this operator in mathematical operations?</li>
       <p>
-				[Replace this with you answer]
+				Modulus % gives the remainder after dividing two numbers.
+        We use it to check things like whether a number is even or odd, or when we need to loop through values in a repeating pattern. 
 			</p>
     </ol>
 		<script type="module" src="./task_2-2.mjs" defer></script>
