@@ -4,15 +4,26 @@ import { printOut, newLine } from "../../common/script/utils.mjs";
 printOut("--- Part 1, 2, 3 ----------------------------------------------------------------------------------------");
 /* Put your code below here!*/
 printOut("Task 1, 2 and 3");
-let wakeUpTime = 2;
-if ("Replace this") {
+let wakeUpTime = 6;
+if (wakeUpTime === 7) {
   printOut("I can take the bus to school.");
+} else if (wakeUpTime === 8) {
+  printOut("I can take the train to school.");
+} else {
+  printOut("I have to take the car to school.");
 }
 printOut(newLine);
 
 printOut("--- Part 4, 5 --------------------------------------------------------------------------------------------");
 /* Put your code below here!*/
-printOut("Replace this with you answer!");
+const num = -3;
+if (num > 0) {
+  printOut("Positive.");
+} else if (num < 0) {
+  printOut("Negative.");
+} else {
+  printOut("Zero.");
+}
 printOut(newLine);
 
 printOut("--- Part 6 ----------------------------------------------------------------------------------------------");
