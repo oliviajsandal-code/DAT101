@@ -215,4 +215,4 @@ txtMovieTitle.value = "Inception";
 selectMovieGenre.value = "17";
 txtMovieDirector.value = "Christopher Nolan";
 txtMovieRate.value = "8.8"; 
-
+}
