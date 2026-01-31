@@ -28,7 +28,7 @@
     let posX = 0;
     let hero = Sonic2;
 
-    
+
     function animate(){
       ctx.clearRect(0, 0, cvs.width, cvs.height);
       const dx = 0, dy = 0,dw = Sonic2.width, dh = Sonic2.height;
@@ -44,7 +44,7 @@
     } else {
       posX = cvs.width - Sonic2.width;
     }
-
+    
     function sonicSheetLoaded() {
       console.log("Sonic sheet loaded");
       setInterval(animate,100);

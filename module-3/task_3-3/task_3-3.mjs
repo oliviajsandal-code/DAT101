@@ -273,5 +273,27 @@ printOut(newLine);
 /* Task 10*/
 printOut("--- Part 10 ---------------------------------------------------------------------------------------------");
 /* Put your code below here!*/
-printOut("Replace this with you answer!");
+printOut(`
+Recursive function. Create a function that calculates the factorial of a given number.<br>
+Factorial of 5 = 5 * 4 * 3 * 2 * 1. Factorial of 6 = 6 * 5 * 4 * 3 * 2 * 1. Etc.<br>
+Have the function call itself to calculate the result and print the final answer.<br>
+Print the result of each intermediate multiplication step as well.
+<br>
+`);
+let Part10IntermediateSteps = "";
+let Part10Step = 0;
+function Part10Factorial(aNumber) {
+  if (aNumber <= 1) {
+    return 1;
+  } else {
+    const result = aNumber * Part10Factorial(aNumber - 1);
+    Part10Step++;
+    Part10IntermediateSteps += `Step ${Part10Step}: ${aNumber} * Factorial(${aNumber - 1}) = ${result}<br>`;
+    return result;
+  }
+}
+const numberForFactorial = 5;
+const factorialResult = Part10Factorial(numberForFactorial);
+printOut(`Factorial of ${numberForFactorial} is ${factorialResult}`);
+printOut("Intermediate Steps:<br>" + Part10IntermediateSteps);
 printOut(newLine);
