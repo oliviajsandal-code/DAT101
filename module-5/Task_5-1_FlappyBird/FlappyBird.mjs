@@ -34,9 +34,13 @@ const SpriteInfoList = {
 export const EGameStatus = { idle: 0, countDown: 1, gaming: 2, heroIsDead: 3, gameOver: 4, state: 0 };
 const background = new TBackground(spcvs, SpriteInfoList);
 export const hero = new THero(spcvs, SpriteInfoList.hero1);
-const obstacles = [];
-const baits = [];
-export const menu = new TMenu(spcvs, SpriteInfoList);
+export const obstacles = [];
+export const baits = [];
+export const menu = new TMenu(spcvs, SpriteInfoList, () => {
+  hero.restart();
+  obstacles.length = 0;
+  baits.length = 0;
+});
 let obstaclePassed = false;
 
 //--------------- Functions ----------------------------------------------//
@@ -96,6 +100,23 @@ function animateGame() {
         }
       }
     }
+
+    // Check collision with obstacles
+    for (let i = 0; i < obstacles.length; i++) {
+      const obstacle = obstacles[i];
+      if (hero.hasCollided(obstacle)) {
+        EGameStatus.state = EGameStatus.heroIsDead;
+        menu.showGameOver(menu.getCurrentScore());  // Need to add this method
+        break;
+      }
+    }
+
+    // Check if hero hits ground or goes too high
+    if (hero.y > cvs.height - 50 || hero.y < 0) {  // Adjusted ground check
+      EGameStatus.state = EGameStatus.heroIsDead;
+      menu.showGameOver(menu.getCurrentScore());
+    }
+
     if (deleteObstacle) {
       obstacles.splice(0, 1);
     }
@@ -117,6 +138,8 @@ function drawGame() {
   background.drawGround();
   menu.draw();
 }
+
+
 
 function loadGame() {
   console.log("Game Loaded");
@@ -142,15 +165,21 @@ function onKeyDown(aEvent) {
   }
 } // end of onKeyDown
 
-function setSoundOnOff() {
-  // Mute or unmute the game sound based on checkbox
+function setSoundOnOff(){
+  const isMuted = chkMuteSound.checked;  
+  menu.setSoundMute(isMuted);       
 } // end of setSoundOnOff
 
-function setDayNight(aEvent) {
-  // Set day or night mode based on radio buttons
-  // Day mode is when value is 1, night mode is 0, you can use this as a boolean, 1=true, 0=false
-  // e.g., isDayMode = (aEvent.target.value == 1);
-  console.log(`Day/Night mode changed: ${aEvent.target.value}`);
+function setDayNight(aEvent){ 
+  const isDayMode = (aEvent.target.value == 1);  // true for Day, false for Night
+  
+  // Update background sprite index (0 = Day, 1 = Night)
+  background.index = isDayMode ? 0 : 1;
+  
+  // Update all obstacles to match
+  obstacles.forEach(obstacle => {
+    obstacle.setTheme(isDayMode);
+  });
 } // end of setDayNight
 
 //--------------- Main Code ----------------------------------------------//

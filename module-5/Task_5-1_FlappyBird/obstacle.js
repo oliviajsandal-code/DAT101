@@ -30,9 +30,9 @@ export class TObstacle{
     }
 
     this.#spDown = new TSprite(aSpcvs, aSPI, x, topWithGap);
-    this.#spDown.index = 2;
+    this.#spDown.index = 0;  // Default to day mode
     this.#spUp = new TSprite(aSpcvs, aSPI, x, top);
-    this.#spUp.index = 3;
+    this.#spUp.index = 1;    // Default to day mode
   }
 
   // Properties
@@ -49,20 +49,15 @@ export class TObstacle{
     this.#spUp.draw();
   }
 
+  setTheme(isDay){
+    // For day mode, use lighter pipes (index 0,1), for night mode use darker pipes (index 2,3)
+    this.#spDown.index = isDay ? 0 : 2;
+    this.#spUp.index = isDay ? 1 : 3;
+  }
   
   animate(){
     this.#spDown.x--;
     this.#spUp.x--;
-    let hasCollided = hero.hasCollided(this.#spDown) || hero.hasCollided(this.#spUp);
-
-    if(hasCollided){
-      console.log("Collision with Hero!");
-      EGameStatus.state = EGameStatus.heroIsDead;
-      hero.animationSpeed = 0;
-      menu.stopSound();
-      hero.flap(); // Last flap of death!
-      hero.dead();
-    }
   }
 
 }// End of class TObstacle

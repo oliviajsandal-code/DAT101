@@ -11,6 +11,14 @@ export class TBackground{
     this.#spriteGround = new TSprite(aSpcvs, aSPI.ground, 0, groundPosY);
   }
 
+  get index() {
+    return this.#spriteBackground.index;
+  }
+
+  set index(value) {
+    this.#spriteBackground.index = value;
+  }
+
   drawBackground(){
     this.#spriteBackground.draw();
   }
