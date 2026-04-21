@@ -32,6 +32,8 @@ const SpriteInfoList = {
 };
 
 export const EGameStatus = { idle: 0, countDown: 1, gaming: 2, heroIsDead: 3, gameOver: 4, state: 0 };
+export let soundMuted = chkMuteSound.checked;
+export let isDayMode = rbDayNight[0].checked;
 const background = new TBackground(spcvs, SpriteInfoList);
 export const hero = new THero(spcvs, SpriteInfoList.hero1);
 export const obstacles = [];
@@ -40,8 +42,8 @@ export const menu = new TMenu(spcvs, SpriteInfoList, () => {
   hero.restart();
   obstacles.length = 0;
   baits.length = 0;
+  EGameStatus.state = EGameStatus.idle;
 });
-let obstaclePassed = false;
 
 //--------------- Functions ----------------------------------------------//
 export function startGame() {
@@ -54,7 +56,7 @@ function spawnBait() {
   if (EGameStatus.state === EGameStatus.gaming) {
     const bait = new TBait(spcvs, SpriteInfoList.food);
     baits.push(bait);
-    const nextTime = Math.ceil(Math.random() * 3) + 1;
+    const nextTime = Math.ceil(Math.random() * 4) + 3;  // 3-7 seconds
     setTimeout(spawnBait, nextTime * 1000);
   }
 }
@@ -62,8 +64,9 @@ function spawnBait() {
 function spawnObstacle() {
   if (EGameStatus.state === EGameStatus.gaming) {
     const obstacle = new TObstacle(spcvs, SpriteInfoList.obstacle);
+    obstacle.setTheme(isDayMode);
     obstacles.push(obstacle);
-    const nextTime = Math.ceil(Math.random() * 3) + 1;
+    const nextTime = Math.ceil(Math.random() * 4) + 2;
     setTimeout(spawnObstacle, nextTime * 1000);
   }
 }
@@ -86,27 +89,36 @@ function animateGame() {
 
   if (EGameStatus.state === EGameStatus.gaming) {
     background.animate();
-    let deleteObstacle = false;
+    
     for (let i = 0; i < obstacles.length; i++) {
       const obstacle = obstacles[i];
       obstacle.animate();
-      if (obstacle.x < -50) {
-        deleteObstacle = true;
-        obstaclePassed = false;
-      }else if((obstacle.x + obstacle.width) < hero.x){
-        if(!obstaclePassed){
-          menu.incGameScore(1);
-          obstaclePassed = true;
-        }
+      
+      // Check scoring BEFORE deletion
+      // Hero is at x=100, so when obstacle fully passes (right edge < hero.x)
+      if((obstacle.x + obstacle.width) < hero.x && !obstacle.passed){
+        console.log(`Score! Obstacle passed. Obstacle x: ${obstacle.x}, width: ${obstacle.width}, hero x: ${hero.x}`);
+        menu.incGameScore(1);
+        obstacle.passed = true;
+        console.log(`New score: ${menu.getCurrentScore()}`);
+      }
+    }
+    
+    // Delete off-screen obstacles (after scoring is checked)
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+      if (obstacles[i].x < -50) {
+        obstacles.splice(i, 1);
       }
     }
 
     // Check collision with obstacles
     for (let i = 0; i < obstacles.length; i++) {
       const obstacle = obstacles[i];
-      if (hero.hasCollided(obstacle)) {
+      if (obstacle.hasCollided(hero)) {  // Note: obstacle checks collision with hero
+        console.log(`Collision! Hero hit obstacle`);
         EGameStatus.state = EGameStatus.heroIsDead;
-        menu.showGameOver(menu.getCurrentScore());  // Need to add this method
+        hero.dead();  // Play death sound
+        menu.showGameOver(menu.getCurrentScore());
         break;
       }
     }
@@ -114,11 +126,8 @@ function animateGame() {
     // Check if hero hits ground or goes too high
     if (hero.y > cvs.height - 50 || hero.y < 0) {  // Adjusted ground check
       EGameStatus.state = EGameStatus.heroIsDead;
+      hero.dead();  // Play death sound
       menu.showGameOver(menu.getCurrentScore());
-    }
-
-    if (deleteObstacle) {
-      obstacles.splice(0, 1);
     }
   }
 }
@@ -157,8 +166,11 @@ function loadGame() {
 function onKeyDown(aEvent) {
   switch (aEvent.code) {
     case "Space":
-      console.log("Space key pressed, flap the hero!");
-      if (EGameStatus.state !== EGameStatus.heroIsDead) {
+      if (
+        EGameStatus.state === EGameStatus.idle ||
+        EGameStatus.state === EGameStatus.countDown ||
+        EGameStatus.state === EGameStatus.gaming
+      ) {
         hero.flap();
       }
       break;
@@ -166,17 +178,13 @@ function onKeyDown(aEvent) {
 } // end of onKeyDown
 
 function setSoundOnOff(){
-  const isMuted = chkMuteSound.checked;  
-  menu.setSoundMute(isMuted);       
+  soundMuted = chkMuteSound.checked;
+  menu.setSoundMute(soundMuted);
 } // end of setSoundOnOff
 
 function setDayNight(aEvent){ 
-  const isDayMode = (aEvent.target.value == 1);  // true for Day, false for Night
-  
-  // Update background sprite index (0 = Day, 1 = Night)
+  isDayMode = Number(aEvent.target.value) === 1;
   background.index = isDayMode ? 0 : 1;
-  
-  // Update all obstacles to match
   obstacles.forEach(obstacle => {
     obstacle.setTheme(isDayMode);
   });
@@ -186,6 +194,8 @@ function setDayNight(aEvent){
 chkMuteSound.addEventListener("change", setSoundOnOff);
 rbDayNight[0].addEventListener("change", setDayNight);
 rbDayNight[1].addEventListener("change", setDayNight);
+menu.setSoundMute(soundMuted);
+background.index = isDayMode ? 0 : 1;
 
 // Load the sprite sheet
 spcvs.loadSpriteImage("./Media/FlappyBirdSprites.png", loadGame);

@@ -7,10 +7,37 @@
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
     <title>Flappy Bird</title>
     <style>
+      body {
+        margin: 0;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #f0f0f0;
+        font-family: Arial, sans-serif;
+      }
+
+      #cvs {
+        background-color: antiquewhite;
+        display: block;
+        border: 2px solid #333;
+        width: 100%;
+        max-width: 600px;
+        height: auto;
+        aspect-ratio: 576 / 512;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+      }
+
       .prevent-select {
         -webkit-user-select: none; /* Safari */
         -ms-user-select: none; /* IE 10 and IE 11 */
         user-select: none; /* Standard syntax */
+      }
+
+      fieldset {
+        margin-top: 20px;
+        max-width: 90vw;
       }
     </style>
     <script type="importmap">
@@ -25,8 +52,8 @@
     <script type="module" src="./FlappyBird.mjs" defer></script>
   </head>
   <body class="prevent-select">
-    <canvas id="cvs" style="background-color: antiquewhite"></canvas>
-    <fieldset style="max-width: 550px; margin-top: 25px">
+    <canvas id="cvs"></canvas>
+    <fieldset>
       <legend>Game Settings</legend>
       <fieldset style="margin-top: 5px">
         <legend>Day or Night</legend>

@@ -1,12 +1,12 @@
 "use strict";
-import { TSprite, TSpriteButton, TSpriteNumber} from "libSprite";
+import { TSprite, TSpriteButton, TSpriteNumber } from "libSprite";
 import { startGame, EGameStatus } from "./FlappyBird.mjs";
 import { TSoundFile } from "libSound";
 
 const fnCountDown = "./Media/countDown.mp3";
 const fnRunning = "./Media/running.mp3";
 
-export class TMenu{
+export class TMenu {
   #spTitle;
   #spPlayBtn;
   #spCountDown;
@@ -18,140 +18,191 @@ export class TMenu{
   #spMedal;
   #spFinalScore;
   #spHighScore;
-  #highScore;
+  #highScores;
   #resetGameCallback;
-  #resetGameCallback;
-  constructor(aSpcvs, aSPI, aResetGameCallback){
+  #isMuted;
+
+  constructor(aSpcvs, aSPI, aResetGameCallback) {
     this.#spTitle = new TSprite(aSpcvs, aSPI.flappyBird, 200, 100);
     this.#spPlayBtn = new TSpriteButton(aSpcvs, aSPI.buttonPlay, 240, 180);
     this.#spPlayBtn.addEventListener("click", this.spPlayBtnClick.bind(this));
+
     this.#spCountDown = new TSpriteNumber(aSpcvs, aSPI.numberBig, 280, 190);
     this.#spCountDown.visible = false;
+
+    this.#spGameScore = new TSpriteNumber(aSpcvs, aSPI.numberSmall, 10, 10);
+    this.#spGameScore.value = 0;
+    this.#spGameScore.visible = false;
+    this.#spGameScore.alpha = 0.5;
+
+    this.#spGetReady = new TSprite(aSpcvs, aSPI.infoText, 188, 140);
+    this.#spGetReady.index = 0;
+    this.#spGetReady.hidden = true;
+
+    this.#spGameOverBillboard = new TSprite(aSpcvs, aSPI.gameOver, 175, 170);
+    this.#spGameOverBillboard.hidden = true;
+
+    this.#spMedal = new TSprite(aSpcvs, aSPI.medal, 205, 222);
+    this.#spMedal.hidden = true;
+
+    this.#spFinalScore = new TSpriteNumber(aSpcvs, aSPI.numberBig, 335, 224);
+    this.#spFinalScore.visible = false;
+
+    this.#spHighScore = new TSpriteNumber(aSpcvs, aSPI.numberBig, 335, 272);
+    this.#spHighScore.visible = false;
+
     this.#sfCountDown = null;
     this.#sfRunning = null;
-    this.#spGameScore = new TSpriteNumber(aSpcvs, aSPI.numberSmall, 10, 10);
-    this.#spGameScore.alpha = 0.5;
-    this.#spGetReady = new TSprite(aSpcvs, aSPI.infoText, 200, 150);
-    this.#spGetReady.visible = false;
-    this.#spGetReady.index = 0;  // Index 0 = "Get Ready"
-    this.#spGameOverBillboard = new TSprite(aSpcvs, aSPI.gameOver, 175, 200);
-    this.#spGameOverBillboard.visible = false;
-    this.#spMedal = new TSprite(aSpcvs, aSPI.medal, 130, 190);
-    this.#spMedal.visible = false;
-    this.#spFinalScore = new TSpriteNumber(aSpcvs, aSPI.numberBig, 230, 235);
-    this.#spFinalScore.visible = false;
-    this.#spHighScore = new TSpriteNumber(aSpcvs, aSPI.numberBig, 230, 280);
-    this.#spHighScore.visible = false;
-    this.#highScore = 0;  // Track best score
+    this.#highScores = [0];
+    this.#isMuted = false;
     this.#resetGameCallback = aResetGameCallback;
   }
 
-  incGameScore(aScore){
+  #showMainMenu() {
+    this.#spTitle.hidden = false;
+    this.#spPlayBtn.hidden = false;
+    this.#spGetReady.hidden = true;
+    this.#spCountDown.visible = false;
+    this.#spGameScore.visible = false;
+    this.#spGameOverBillboard.hidden = true;
+    this.#spMedal.hidden = true;
+    this.#spFinalScore.visible = false;
+    this.#spHighScore.visible = false;
+  }
+
+  incGameScore(aScore) {
     this.#spGameScore.value += aScore;
   }
 
-  stopSound(){
-    this.#sfRunning.stop();
+  getCurrentScore() {
+    return this.#spGameScore.value;
   }
 
-setSoundMute(aIsMuted){
-  if(aIsMuted && this.#sfRunning){
-    this.#sfRunning.stop();
-  } else if(!aIsMuted && this.#sfRunning){
-    this.#sfRunning.play();
+  isMuted() {
+    return this.#isMuted;
   }
-}
 
-getCurrentScore(){
-  return this.#spGameScore.value;
-}
-
-showGameOver(aScore){
-  // Stop music
-  if(this.#sfRunning){
-    this.#sfRunning.stop();
+  stopSound() {
+    if (this.#sfRunning) {
+      this.#sfRunning.stop();
+    }
   }
-  
-  // Hide in-game stuff
-  this.#spCountDown.visible = false;
-  this.#spGameScore.visible = false;
-  this.#spGetReady.visible = false;
-  
-  // Show game over
-  this.#spGameOverBillboard.visible = true;
-  this.#spPlayBtn.visible = true;
-  
-  // Show scores
-  this.#spFinalScore.visible = true;
-  this.#spFinalScore.value = aScore;
-  
-  if(aScore > this.#highScore){
-    this.#highScore = aScore;
+
+  setSoundMute(aIsMuted) {
+    this.#isMuted = aIsMuted;
+
+    if (aIsMuted) {
+      if (this.#sfRunning) {
+        this.#sfRunning.stop();
+      }
+      if (this.#sfCountDown) {
+        this.#sfCountDown.stop();
+      }
+      return;
+    }
+
+    if (this.#sfRunning && EGameStatus.state === EGameStatus.gaming) {
+      this.#sfRunning.play();
+    }
   }
-  
-  this.#spHighScore.visible = true;
-  this.#spHighScore.value = this.#highScore;
-  
-  // Medal logic
-  this.#spMedal.visible = true;
-  if(aScore >= 3) this.#spMedal.index = 0;
-  else if(aScore >= 2) this.#spMedal.index = 1;
-  else if(aScore >= 1) this.#spMedal.index = 2;
-  else this.#spMedal.index = 3;
-}
 
-draw(){
-  this.#spTitle.draw();
-  this.#spPlayBtn.draw();
-  this.#spCountDown.draw();
-  this.#spGameScore.draw();
-  this.#spGetReady.draw();
-  this.#spGameOverBillboard.draw();
-  this.#spMedal.draw();
-  this.#spFinalScore.draw();
-  this.#spHighScore.draw();
-}
+  showGameOver(aScore) {
+    this.stopSound();
+    if (this.#sfCountDown) {
+      this.#sfCountDown.stop();
+    }
 
-countDown(){
-  this.#spCountDown.value--;
-  if(this.#spCountDown.value > 0){
-    setTimeout(this.countDown.bind(this), 1000);  
-  }else{
+    this.#spGetReady.hidden = true;
     this.#spCountDown.visible = false;
-    this.#spGetReady.visible = false;  // Hide "Get Ready"
+    this.#spGameScore.visible = false;
     this.#spTitle.hidden = true;
+
+    this.#spGameOverBillboard.hidden = false;
+    this.#spPlayBtn.hidden = false;
+    this.#spFinalScore.visible = true;
+    this.#spFinalScore.value = aScore;
+
+    this.#highScores.push(aScore);
+    this.#highScores.sort((a, b) => b - a);
+    this.#highScores.length = Math.min(this.#highScores.length, 5);
+
+    this.#spHighScore.visible = true;
+    this.#spHighScore.value = this.#highScores[0] ?? 0;
+
+    this.#spMedal.hidden = false;
+    if (aScore >= 3) {
+      this.#spMedal.index = 0;
+    } else if (aScore >= 2) {
+      this.#spMedal.index = 1;
+    } else if (aScore >= 1) {
+      this.#spMedal.index = 2;
+    } else {
+      this.#spMedal.index = 3;
+    }
+  }
+
+  draw() {
+    this.#spTitle.draw();
+    this.#spPlayBtn.draw();
+    this.#spGetReady.draw();
+    this.#spCountDown.draw();
+    this.#spGameScore.draw();
+    this.#spGameOverBillboard.draw();
+    this.#spMedal.draw();
+    this.#spFinalScore.draw();
+    this.#spHighScore.draw();
+  }
+
+  countDown() {
+    if (EGameStatus.state !== EGameStatus.countDown) {
+      return;
+    }
+
+    this.#spCountDown.value -= 1;
+    if (this.#spCountDown.value > 0) {
+      setTimeout(this.countDown.bind(this), 1000);
+      return;
+    }
+
+    this.#spCountDown.visible = false;
+    this.#spGetReady.hidden = true;
+    this.#spGameScore.visible = true;
     this.#sfRunning = new TSoundFile(fnRunning);
-    this.#sfRunning.play();
+    if (!this.#isMuted) {
+      this.#sfRunning.play();
+    }
     startGame();
   }
-}
 
-spPlayBtnClick(){
-  // If restarting from game over, reset everything
-  if(this.#spGameOverBillboard.visible){
-    this.#spGameOverBillboard.visible = false;
-    this.#spMedal.visible = false;
-    this.#spFinalScore.visible = false;
-    this.#spHighScore.visible = false;
-    
-    if(this.#resetGameCallback) this.#resetGameCallback();
-    this.#spGameScore.value = 0;
+  spPlayBtnClick() {
+    if (EGameStatus.state === EGameStatus.countDown || EGameStatus.state === EGameStatus.gaming) {
+      return;
+    }
+
+    if (this.#sfCountDown) {
+      this.#sfCountDown.stop();
+    }
+
+    if (EGameStatus.state === EGameStatus.heroIsDead || EGameStatus.state === EGameStatus.gameOver) {
+      if (this.#resetGameCallback) {
+        this.#resetGameCallback();
+      }
+      this.#spGameScore.value = 0;
+    }
+
+    EGameStatus.state = EGameStatus.countDown;
+    this.#showMainMenu();
+    this.#spTitle.hidden = true;
+    this.#spPlayBtn.hidden = true;
+    this.#spGetReady.hidden = false;
+    this.#spCountDown.visible = true;
+    this.#spCountDown.value = 3;
+
+    this.#sfCountDown = new TSoundFile(fnCountDown);
+    if (!this.#isMuted) {
+      this.#sfCountDown.play();
+    }
+
+    setTimeout(this.countDown.bind(this), 1000);
   }
-  
-  // Normal menu logic
-  console.log("Click!");
-  EGameStatus.state = EGameStatus.countDown;
-  this.#spPlayBtn.hidden = true;
-  this.#spTitle.hidden = true;
-  this.#spGetReady.visible = true;  // Show "Get Ready"
-  this.#spCountDown.visible = true;
-  this.#spCountDown.value = 3;
-  this.#sfCountDown = new TSoundFile(fnCountDown);
-  this.#sfCountDown.play();
-  setTimeout(this.countDown.bind(this), 1000);
 }
-}
-
-
-
-  

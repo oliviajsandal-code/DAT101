@@ -33,7 +33,7 @@ export class THero extends TSprite {
     } else {
       this.#sfFood.stop();
     }
-    this.#sfFood.play();
+    if(!menu.isMuted()) this.#sfFood.play();
   }
 
   animate() {
@@ -52,7 +52,7 @@ export class THero extends TSprite {
         menu.stopSound();
         this.animationSpeed = 0;
         this.#sfGameOver = new TSoundFile(fnGameOver);
-        this.#sfGameOver.play();
+        if(!menu.isMuted()) this.#sfGameOver.play();
       }
     } else if (EGameStatus.state === EGameStatus.idle) {
       this.y += this.#wave.value;
@@ -61,7 +61,7 @@ export class THero extends TSprite {
 
   dead(){
     this.#sfHeroIsDead = new TSoundFile(fnHeroIsDead);
-    this.#sfHeroIsDead.play();
+    if(!menu.isMuted()) this.#sfHeroIsDead.play();
   }
 
   flap() {

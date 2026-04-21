@@ -11,9 +11,11 @@ export class TObstacle{
   #spUp;
   #spDown;
   #spi;
+  #passed;
   constructor(aSpcvs, aSPI){
     const x = 600;
     this.#spi = aSPI;
+    this.#passed = false;  // Track if this obstacle has been passed for scoring
     // Generate random gap height, based on difficulty settings
     const gap = Math.ceil(Math.random() * (EasyFlyerGap - HardFlyerGap) + HardFlyerGap);
     const minTop = -this.#spi.height + MinimumProtrusion; // Minimum top position for upper obstacle
@@ -40,8 +42,16 @@ export class TObstacle{
     return this.#spDown.x;
   }
 
-  get width(){
+  get width() {
     return this.#spDown.width;
+  }
+
+  get passed() {
+    return this.#passed;
+  }
+
+  set passed(value) {
+    this.#passed = value;
   }
 
   draw(){
@@ -58,6 +68,11 @@ export class TObstacle{
   animate(){
     this.#spDown.x--;
     this.#spUp.x--;
+  }
+
+  hasCollided(aSprite) {
+    // Check collision with both upper and lower pipes
+    return aSprite.hasCollided(this.#spUp) || aSprite.hasCollided(this.#spDown);
   }
 
 }// End of class TObstacle
