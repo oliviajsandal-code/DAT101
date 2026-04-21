@@ -50,6 +50,7 @@ export class THero extends TSprite {
       } else {
         EGameStatus.state = EGameStatus.gameOver;
         menu.stopSound();
+        menu.showGameOver(menu.getCurrentScore());
         this.animationSpeed = 0;
         this.#sfGameOver = new TSoundFile(fnGameOver);
         if(!menu.isMuted()) this.#sfGameOver.play();

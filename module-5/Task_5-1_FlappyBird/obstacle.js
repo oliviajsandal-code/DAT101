@@ -6,51 +6,49 @@ const EasyFlyerGap = 150;
 const HardFlyerGap = 100;
 const MinimumProtrusion = 30;
 
-
 export class TObstacle{
   #spUp;
   #spDown;
   #spi;
   #passed;
+
   constructor(aSpcvs, aSPI){
     const x = 600;
     this.#spi = aSPI;
-    this.#passed = false;  // Track if this obstacle has been passed for scoring
-    // Generate random gap height, based on difficulty settings
+    this.#passed = false;
+
     const gap = Math.ceil(Math.random() * (EasyFlyerGap - HardFlyerGap) + HardFlyerGap);
-    const minTop = -this.#spi.height + MinimumProtrusion; // Minimum top position for upper obstacle
-    const maxTop = -MinimumProtrusion; // Maximum top position for upper obstacle
-    // Generate random top position for upper obstacle
+    const minTop = -this.#spi.height + MinimumProtrusion;
+    const maxTop = -MinimumProtrusion;
     let top = Math.ceil(Math.random() * (maxTop - minTop) + minTop);
-    const minBottom = 400 - MinimumProtrusion; // Minimum bottom position for lower obstacle
-    let topWithGap = this.#spi.height + top + gap; // Initial position of bottom obstacle based on the height of the sprite, gap, and top 
+    const minBottom = 400 - MinimumProtrusion;
+    let topWithGap = this.#spi.height + top + gap;
+
     if(topWithGap > minBottom){
-      // The top with gap is too low, adjust top and keep the gap constant
       const adjustment = topWithGap - minBottom;
       top -= adjustment;
-      topWithGap = this.#spi.height + top + gap; // Recalculate topWithGap after adjustment
+      topWithGap = this.#spi.height + top + gap;
     }
 
-    this.#spDown = new TSprite(aSpcvs, aSPI, x, topWithGap);
-    this.#spDown.index = 0;  // Default to day mode
-    this.#spUp = new TSprite(aSpcvs, aSPI, x, top);
-    this.#spUp.index = 1;    // Default to day mode
+    this.#spDown = new TSprite(aSpcvs,aSPI,x,topWithGap);
+    this.#spDown.index = 0;
+    this.#spUp = new TSprite(aSpcvs,aSPI,x,top);
+    this.#spUp.index = 1;
   }
 
-  // Properties
   get x(){
     return this.#spDown.x;
   }
 
-  get width() {
+  get width(){
     return this.#spDown.width;
   }
 
-  get passed() {
+  get passed(){
     return this.#passed;
   }
 
-  set passed(value) {
+  set passed(value){
     this.#passed = value;
   }
 
@@ -60,19 +58,17 @@ export class TObstacle{
   }
 
   setTheme(isDay){
-    // For day mode, use lighter pipes (index 0,1), for night mode use darker pipes (index 2,3)
     this.#spDown.index = isDay ? 0 : 2;
     this.#spUp.index = isDay ? 1 : 3;
   }
-  
+
   animate(){
     this.#spDown.x--;
     this.#spUp.x--;
   }
 
-  hasCollided(aSprite) {
-    // Check collision with both upper and lower pipes
+  hasCollided(aSprite){
     return aSprite.hasCollided(this.#spUp) || aSprite.hasCollided(this.#spDown);
   }
 
-}// End of class TObstacle
+}

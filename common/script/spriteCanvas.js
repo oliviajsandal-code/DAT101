@@ -153,8 +153,10 @@ export class TSpriteCanvas {
   }
 
   #updateMousePosition(aEvent) {
-    this.#mousePos.x = aEvent.clientX - this.#boundingRect.left;
-    this.#mousePos.y = aEvent.clientY - this.#boundingRect.top;
+    const scaleX = this.#cvs.width / this.#boundingRect.width;
+    const scaleY = this.#cvs.height / this.#boundingRect.height;
+    this.#mousePos.x = (aEvent.clientX - this.#boundingRect.left) * scaleX;
+    this.#mousePos.y = (aEvent.clientY - this.#boundingRect.top) * scaleY;
   }
 
   #cvsMouseMove(aEvent) {
